@@ -1,30 +1,34 @@
-import express from 'express';
-import { MsEdgeTTS, OUTPUT_FORMAT } from 'edge-tts';
+const express = require('express');
+const { MsEdgeTTS, OUTPUT_FORMAT } = require('edge-tts');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.send('Khmer TTS API is running!');
+});
+
 app.get('/tts', async (req, res) => {
   const text = req.query.text;
-  const voice = req.query.voice || 'km-KH-PisethNeural';
-
   if (!text) {
-    return res.status(400).send('Please provide text');
+    return res.status(400).send('Please provide text query parameter.');
   }
 
   try {
     const tts = new MsEdgeTTS();
-    await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
+    await tts.setMetadata('km-KH-PisethNeural', OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
     const readable = tts.toStream(text);
 
     res.setHeader('Content-Type', 'audio/mpeg');
     readable.pipe(res);
   } catch (error) {
-    res.status(500).send('Error generating audio: ' + error.message);
+    console.error(error);
+    res.status(500).send('Error generating TTS');
   }
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server listening on port ${port}`);
 });
-      
