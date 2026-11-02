@@ -1,5 +1,4 @@
 const express = require('express');
-const { MsEdgeTTS, OUTPUT_FORMAT } = require('edge-tts');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -17,6 +16,8 @@ app.get('/tts', async (req, res) => {
   }
 
   try {
+    // ប្រើ dynamic import ដើម្បីដំណើរការ library edge-tts
+    const { MsEdgeTTS, OUTPUT_FORMAT } = await import('edge-tts');
     const tts = new MsEdgeTTS();
     await tts.setMetadata('km-KH-PisethNeural', OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
     const readable = tts.toStream(text);
